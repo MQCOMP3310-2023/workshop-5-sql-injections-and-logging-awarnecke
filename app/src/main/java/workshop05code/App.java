@@ -34,19 +34,22 @@ public class App {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("Loading...");
         SQLiteConnectionManager wordleDatabaseConnection = new SQLiteConnectionManager("words.db");
 
         wordleDatabaseConnection.createNewDatabase("words.db");
         if (wordleDatabaseConnection.checkIfConnectionDefined()) {
-            System.out.println("Wordle created and connected.");
+            logger.log(Level.INFO, "Wordle created and connected");
         } else {
-            System.out.println("Not able to connect. Sorry!");
+            System.out.println("Unable to connect");
+            logger.log(Level.WARNING, "Unable to connect to wordle database");
             return;
         }
         if (wordleDatabaseConnection.createWordleTables()) {
-            System.out.println("Wordle structures in place.");
+            logger.log(Level.INFO, "Wordle structures in place");
         } else {
-            System.out.println("Not able to launch. Sorry!");
+            logger.log(Level.WARNING, "Unable to create wordle structures");
+            System.out.println("Unable to launch");
             return;
         }
 
@@ -57,17 +60,17 @@ public class App {
             int i = 1;
             while ((line = br.readLine()) != null) {
                 if (!line.matches("[a-z]+") || line.length() != 4) {
-                    System.out.println("Invalid word " + line);
+                    logger.log(Level.SEVERE, "Invalid word " + line);
                 } else {
-                    System.out.println(line);
+                    logger.log(Level.INFO, "Word " + line);
                     wordleDatabaseConnection.addValidWord(i, line);
                 }
                 i++;
             }
 
         } catch (IOException e) {
-            System.out.println("Not able to load . Sorry!");
-            System.out.println(e.getMessage());
+            System.out.println("Unable to load");
+            logger.log(Level.WARNING, e.getMessage());
             return;
         }
 
@@ -82,6 +85,7 @@ public class App {
 
                 if (!guess.matches("[a-z]+") || guess.length() != 4) {
                     System.out.println("Invalid input.\n");
+                    logger.log(Level.INFO, "Invalid input " + guess);
                 } else if (wordleDatabaseConnection.isValidWord(guess)) { 
                     System.out.println("Success! It is in the the list.\n");
                 }else{
@@ -92,7 +96,8 @@ public class App {
                 guess = scanner.nextLine();
             }
         } catch (NoSuchElementException | IllegalStateException e) {
-            e.printStackTrace();
+            System.out.println("An error occured");
+            logger.log(Level.WARNING, e.getMessage());
         }
 
     }
